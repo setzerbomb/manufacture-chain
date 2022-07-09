@@ -1,0 +1,214 @@
+{
+	"compiler": {
+		"version": "0.5.17+commit.d19bba13"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "step",
+						"type": "uint256"
+					}
+				],
+				"name": "StepCreated",
+				"type": "event"
+			},
+			{
+				"constant": true,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_step",
+						"type": "uint256"
+					}
+				],
+				"name": "getprecedents",
+				"outputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "",
+						"type": "uint256[]"
+					}
+				],
+				"payable": false,
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"constant": true,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_step",
+						"type": "uint256"
+					}
+				],
+				"name": "isLastStep",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"payable": false,
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"constant": true,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "lastSteps",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"payable": false,
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"constant": false,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_item",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "_precedents",
+						"type": "uint256[]"
+					}
+				],
+				"name": "newStep",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"payable": false,
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"constant": true,
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "steps",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "creator",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "item",
+						"type": "uint256"
+					}
+				],
+				"payable": false,
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"constant": true,
+				"inputs": [],
+				"name": "totalSteps",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"payable": false,
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"author": "Alberto Cuesta Canada",
+			"methods": {
+				"getprecedents(uint256)": {
+					"params": {
+						"_step": "The step id of the step to retrieve precedents for."
+					},
+					"return": "An array with the step ids of the precedent steps."
+				},
+				"isLastStep(uint256)": {
+					"params": {
+						"_step": "The step id of the step to verify."
+					},
+					"return": "Whether a step is the last of an item."
+				},
+				"newStep(uint256,uint256[])": {
+					"params": {
+						"_item": "The item id that this step is for. This must be either the item of one of the steps in _precedents, or an id that has never been used before.",
+						"_precedents": "An array of the step ids for steps considered to be predecessors to this one. Often this would  just mean that the event refers to the same asset as the event  pointed to, but for other steps it could point to other different assets."
+					},
+					"return": "The step id of the step created."
+				}
+			},
+			"title": "Supply Chain"
+		},
+		"userdoc": {
+			"methods": {
+				"getprecedents(uint256)": {
+					"notice": "A method to retrieve the precedents of a step."
+				},
+				"isLastStep(uint256)": {
+					"notice": "A method to verify whether a step is the last of an  item."
+				},
+				"newStep(uint256,uint256[])": {
+					"notice": "A method to create a new supply chain step. The  msg.sender is recorded as the creator of the step, which might possibly mean creator of the underlying asset as well."
+				}
+			},
+			"notice": "Implements a basic compositional supply chain contract."
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"example-code.sol": "SupplyChain"
+		},
+		"evmVersion": "istanbul",
+		"libraries": {},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"example-code.sol": {
+			"keccak256": "0xabc2eebaca5e98208f1927eae7111affcabfe6c99df7126fa569b173fb1a0a53",
+			"urls": [
+				"bzz-raw://3202edb3444556fe58cd3cadb9821e581ed504b07d599f3771869f3ff577c5d5",
+				"dweb:/ipfs/QmT4wFyA4ckRxmh3ffRVffpQ519WPYifEMKWLvTBLZM2G3"
+			]
+		}
+	},
+	"version": 1
+}

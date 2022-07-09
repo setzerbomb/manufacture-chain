@@ -1,12 +1,11 @@
 pragma solidity ^0.5.0;
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 /**
 * @title Supply Chain
 * @author Alberto Cuesta Canada
 * @notice Implements a basic compositional supply chain contract.
 */
 contract SupplyChain {
-   using SafeMath for uint256;   event StepCreated(uint256 step);   
+   event StepCreated(uint256 step);   
    /**
     * @notice Supply chain step data. By chaining these and not 
     * allowing them to be modified afterwards we create an Acyclic
