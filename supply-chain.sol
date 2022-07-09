@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.15;
 
 /*
 Temporary definitions for problem domain structs and contracts
@@ -25,65 +25,71 @@ contract MAMSupplyChain {
         address manufacturedBy;
         address designedBy;
         PostProcessing[] post_processing;
+        QualityCheck[] quality_check;
         uint256 manufacturing_date;
     }
 
-    Part[] part;
+    mapping(uint256 => Part) public _parts;
 
-    function modifyOwnership(Part _part, address newOwner) public payable {
-        require(msg.sender == _part.ownership);
-        _part.ownership = newOwner;
+    uint256 partIdCounter = 0;
+
+    function modifyOwnership(uint256 partId, address newOwner) public {
+        require(msg.sender == _parts[partId].ownership);
+
+        _parts[partId].ownership = newOwner;
     }
 
     function createPart(
-        uint256 _id,
         address _ownership,
         address _manufacturedBy,
         address _designedBy,
         uint256 _manufacturing_date
-    ) public (Part) {
-        Part newpart = Part(
-            _id,
+    ) public {
+
+        _parts[partIdCounter] = Part(
+            partIdCounter,
             _ownership,
             _manufacturedBy,
             _designedBy,
-            [],
+            new PostProcessing[],
+            new QualityCheck[],
             _manufacturing_date
         );
-        this.part = part;
+
+        partIdCounter++;
     }
 
     function addPostProcessing(
-        Part _part,
+        uint256 partId,
         address _company,
-        string _process,
+        string memory _process,
         uint256 _process_parameters,
         uint256 _date
-    ) {
-        this.modifyOwnership(_part, _company);
-        PostProcessing new_post_processing = PostProcessing(
+    ) public {
+        this.modifyOwnership(partId, _company);
+        PostProcessing memory postProcessing = PostProcessing(
             _company,
             _process,
             _process_parameters,
             _date
         );
-        _part.postProcessing.push(new_post_processing);
+        _parts[partIdCounter].post_processing.push(postProcessing);
     }
 
     function addQualityCheck(
-        Part _part,
+        uint256 partId,
         address _company,
-        string _process,
+        string memory _process,
         uint256 _process_parameters,
         uint256 _date
-    ) {
-        this.modifyOwnership(_part, _company);
-        QualityCheck new_qualityCheck = QualityCheck(
+    ) public {
+        this.modifyOwnership(partId, _company);
+        QualityCheck memory qualityCheck = QualityCheck(
             _company,
             _process,
             _process_parameters,
             _date
         );
-        _part.QualityCheck.push(new_qualityCheck);
+        _parts[partIdCounter].quality_check.push(qualityCheck);
     }
 }
