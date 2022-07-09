@@ -24,57 +24,44 @@ contract MAMSupplyChain {
         address ownership;
         address manufacturedBy;
         address designedBy;
-        string description;
         PostProcessing[] post_processing;
         uint256 manufacturing_date;
     }
 
-    Part[] public parts;
+    Part[] part;
 
-    address owner;
-
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
-
-    function modifyOwnership(Part memory _part, address memory newOwner)
-        public
-    {
+    function modifyOwnership(Part _part, address newOwner) public payable {
         require(msg.sender == _part.ownership);
         _part.ownership = newOwner;
     }
 
     function createPart(
-        uint256 memory _id,
-        address memory _ownership,
-        address memory _manufacturedBy,
-        address memory _designedBy,
-        PostProcessing[] memory _post_processing,
-        uint256 memory _manufacturing_date
-    ) onlyOwner {
-        Part memory newpart = Part(
+        uint256 _id,
+        address _ownership,
+        address _manufacturedBy,
+        address _designedBy,
+        uint256 _manufacturing_date
+    ) public (Part) {
+        Part newpart = Part(
             _id,
             _ownership,
             _manufacturedBy,
             _designedBy,
-            _post_processing,
+            [],
             _manufacturing_date
         );
-        parts.push(newpart);
+        this.part = part;
     }
 
     function addPostProcessing(
-        Part memory _part,
-        address memory _company,
-        string memory _process,
-        uint256 memory _process_parameters,
-        uint256 memory _date
-    ) public onlyOwner {
-        require(msg.sender == _part.ownership);
-
+        Part _part,
+        address _company,
+        string _process,
+        uint256 _process_parameters,
+        uint256 _date
+    ) {
         this.modifyOwnership(_part, _company);
-        PostProcessing memory new_post_processing = PostProcessing(
+        PostProcessing new_post_processing = PostProcessing(
             _company,
             _process,
             _process_parameters,
@@ -84,21 +71,19 @@ contract MAMSupplyChain {
     }
 
     function addQualityCheck(
-        Part memory _part,
-        address memory _company,
-        string memory _process,
-        uint256 memory _process_parameters,
-        uint256 memory _date
-    ) public onlyOwner {
-        require(msg.sender == _part.ownership);
-
+        Part _part,
+        address _company,
+        string _process,
+        uint256 _process_parameters,
+        uint256 _date
+    ) {
         this.modifyOwnership(_part, _company);
-        PostProcessing memory new_post_processing = QualityCheck(
+        QualityCheck new_qualityCheck = QualityCheck(
             _company,
             _process,
             _process_parameters,
             _date
         );
-        _part.postProcessing.push(new_post_processing);
+        _part.QualityCheck.push(new_qualityCheck);
     }
 }
