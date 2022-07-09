@@ -24,8 +24,10 @@ contract MAMSupplyChain {
         address ownership;
         address manufacturedBy;
         address designedBy;
-        PostProcessing[] post_processing;
-        QualityCheck[] quality_check;
+        mapping(uint256 => PostProcessing) post_processing;
+        uint256 postProcessingIdCounter;
+        mapping(uint256 => QualityCheck) quality_check;
+        uint256 qualityCheckIdCounter;
         uint256 manufacturing_date;
     }
 
@@ -45,16 +47,15 @@ contract MAMSupplyChain {
         address _designedBy,
         uint256 _manufacturing_date
     ) public {
+        Part storage part = _parts[partIdCounter];
 
-        _parts[partIdCounter] = Part(
-            partIdCounter,
-            _ownership,
-            _manufacturedBy,
-            _designedBy,
-            new PostProcessing[],
-            new QualityCheck[],
-            _manufacturing_date
-        );
+        part.id = partIdCounter;
+        part.ownership = _ownership;
+        part.manufacturedBy = _manufacturedBy;
+        part.designedBy = _designedBy;
+        part.manufacturing_date = _manufacturing_date;
+        part.postProcessingIdCounter = 0;
+        part.qualityCheckIdCounter = 0;
 
         partIdCounter++;
     }
@@ -73,7 +74,10 @@ contract MAMSupplyChain {
             _process_parameters,
             _date
         );
-        _parts[partIdCounter].post_processing.push(postProcessing);
+        _parts[partIdCounter].post_processing[
+            _parts[partIdCounter].postProcessingIdCounter
+        ] = postProcessing;
+        _parts[partIdCounter].postProcessingIdCounter++;
     }
 
     function addQualityCheck(
@@ -90,6 +94,9 @@ contract MAMSupplyChain {
             _process_parameters,
             _date
         );
-        _parts[partIdCounter].quality_check.push(qualityCheck);
+        _parts[partIdCounter].quality_check[
+            _parts[partIdCounter].qualityCheckIdCounter
+        ] = qualityCheck;
+        _parts[partIdCounter].qualityCheckIdCounter++;
     }
 }
