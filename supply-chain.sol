@@ -26,11 +26,13 @@ contract MAMSupplyChain {
         string process; //process name
         uint256 process_parameters; /*hash to original data. This protects industrial secrets.*/
         //Post_processing array
-        mapping(uint256 => PostProcessing) post_processing;
-        uint256 postProcessingIdCounter;
+        // mapping(uint256 => PostProcessing) post_processing;
+        // uint256 postProcessingIdCounter;
+        PostProcessing[] post_processing;
+        QualityCheck[] quality_check;
         //Quality check array
-        mapping(uint256 => QualityCheck) quality_check;
-        uint256 qualityCheckIdCounter;
+        // mapping(uint256 => QualityCheck) quality_check;
+        // uint256 qualityCheckIdCounter;
         uint256 manufacturing_date; /*unix epoch time*/
     }
 
@@ -40,7 +42,10 @@ contract MAMSupplyChain {
 
     function modifyOwnership(uint256 partId, address newOwner) public {
         //Blocks any senders that are not the actual owner of the part
-        require(msg.sender == _parts[partId].ownership || msg.sender == address(this));
+        require(
+            msg.sender == _parts[partId].ownership ||
+                msg.sender == address(this)
+        );
 
         _parts[partId].ownership = newOwner;
     }
@@ -62,8 +67,8 @@ contract MAMSupplyChain {
         part.process = _process;
         part.process_parameters = _process_parameters;
         part.manufacturing_date = _manufacturing_date;
-        part.postProcessingIdCounter = 0;
-        part.qualityCheckIdCounter = 0;
+        // part.postProcessingIdCounter = 0;
+        // part.qualityCheckIdCounter = 0;
 
         //Improves counter for next time
         partIdCounter++;
@@ -88,12 +93,16 @@ contract MAMSupplyChain {
         );
 
         //Adds post_processing with counter Id into part
+        _parts[partId].post_processing.push(postProcessing);
+
+        /*
         _parts[partId].post_processing[
             _parts[partId].postProcessingIdCounter
         ] = postProcessing;
+        */
 
         //Improves counter for next time
-        _parts[partId].postProcessingIdCounter++;
+        // _parts[partId].postProcessingIdCounter++;
     }
 
     function addQualityCheck(
@@ -115,11 +124,15 @@ contract MAMSupplyChain {
         );
 
         //Adds quality_check with counter Id into part
+        _parts[partId].quality_check.push(qualityCheck);
+
+        /*
         _parts[partId].quality_check[
             _parts[partId].qualityCheckIdCounter
         ] = qualityCheck;
+        */
 
         //Improves counter for next time
-        _parts[partId].qualityCheckIdCounter++;
+        // _parts[partId].qualityCheckIdCounter++;
     }
 }
