@@ -26,13 +26,9 @@ contract MAMSupplyChain {
         string process; //process name
         uint256 process_parameters; /*hash to original data. This protects industrial secrets.*/
         //Post_processing array
-        // mapping(uint256 => PostProcessing) post_processing;
-        // uint256 postProcessingIdCounter;
         PostProcessing[] post_processing;
         QualityCheck[] quality_check;
         //Quality check array
-        // mapping(uint256 => QualityCheck) quality_check;
-        // uint256 qualityCheckIdCounter;
         uint256 manufacturing_date; /*unix epoch time*/
     }
 
@@ -41,7 +37,7 @@ contract MAMSupplyChain {
     uint256 partIdCounter = 0;
 
     function modifyOwnership(uint256 partId, address newOwner) public {
-        //Blocks any senders that are not the actual owner of the part
+        //Blocks any senders that are not the actual owner of the part or the contract itself 
         require(
             msg.sender == _parts[partId].ownership ||
                 msg.sender == address(this)
@@ -95,14 +91,10 @@ contract MAMSupplyChain {
         //Adds post_processing with counter Id into part
         _parts[partId].post_processing.push(postProcessing);
 
-        /*
-        _parts[partId].post_processing[
-            _parts[partId].postProcessingIdCounter
-        ] = postProcessing;
-        */
+    }
 
-        //Improves counter for next time
-        // _parts[partId].postProcessingIdCounter++;
+    function getPartPostProcessing(uint256 part_id) public view returns(PostProcessing[] memory) {
+        return _parts[part_id].post_processing;
     }
 
     function addQualityCheck(
@@ -126,13 +118,10 @@ contract MAMSupplyChain {
         //Adds quality_check with counter Id into part
         _parts[partId].quality_check.push(qualityCheck);
 
-        /*
-        _parts[partId].quality_check[
-            _parts[partId].qualityCheckIdCounter
-        ] = qualityCheck;
-        */
-
-        //Improves counter for next time
-        // _parts[partId].qualityCheckIdCounter++;
     }
+
+    function getPartQualityCheck(uint256 part_id) public view returns(QualityCheck[] memory) {
+        return _parts[part_id].quality_check;
+    }
+
 }
