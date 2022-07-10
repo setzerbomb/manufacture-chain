@@ -6,17 +6,16 @@ Temporary definitions for problem domain structs and contracts
 contract MAMSupplyChain {
     struct PostProcessing {
         address company;
-        string process;
-        uint256 process_parameters;
-        /* date can be defined by unix epoch time*/
-        uint256 date;
+        string process; //process name
+        uint256 process_parameters; /*hash to original data. This protects industrial secrets.*/
+        uint256 date; /*unix epoch time*/
     }
 
     struct QualityCheck {
         address company;
-        string process;
-        uint256 process_parameters;
-        uint256 date;
+        string process; //process name
+        uint256 process_parameters; /*hash to original data. This protects industrial secrets.*/
+        uint256 date; /*unix epoch time*/
     }
 
     struct Part {
@@ -24,18 +23,23 @@ contract MAMSupplyChain {
         address ownership;
         address manufacturedBy;
         address designedBy;
+        string process; //process name
+        uint256 process_parameters; /*hash to original data. This protects industrial secrets.*/
+        //Post_processing array
         mapping(uint256 => PostProcessing) post_processing;
         uint256 postProcessingIdCounter;
+        //Quality check array
         mapping(uint256 => QualityCheck) quality_check;
         uint256 qualityCheckIdCounter;
-        uint256 manufacturing_date;
+        uint256 manufacturing_date; /*unix epoch time*/
     }
 
+    //Parts array
     mapping(uint256 => Part) public _parts;
-
     uint256 partIdCounter = 0;
 
     function modifyOwnership(uint256 partId, address newOwner) public {
+        //Blocks any senders that are not the actual owner of the part
         require(msg.sender == _parts[partId].ownership);
 
         _parts[partId].ownership = newOwner;
@@ -45,6 +49,8 @@ contract MAMSupplyChain {
         address _ownership,
         address _manufacturedBy,
         address _designedBy,
+        string memory _process,
+        uint256 _process_parameters,
         uint256 _manufacturing_date
     ) public {
         Part storage part = _parts[partIdCounter];
@@ -53,10 +59,13 @@ contract MAMSupplyChain {
         part.ownership = _ownership;
         part.manufacturedBy = _manufacturedBy;
         part.designedBy = _designedBy;
+        part.process = _process;
+        part.process_parameters = _process_parameters;
         part.manufacturing_date = _manufacturing_date;
         part.postProcessingIdCounter = 0;
         part.qualityCheckIdCounter = 0;
 
+        //Improves counter for next time
         partIdCounter++;
     }
 
@@ -67,17 +76,24 @@ contract MAMSupplyChain {
         uint256 _process_parameters,
         uint256 _date
     ) public {
+        //Changes ownership to the responsible company
         this.modifyOwnership(partId, _company);
+
+        //Creates a temporary instance for post processing
         PostProcessing memory postProcessing = PostProcessing(
             _company,
             _process,
             _process_parameters,
             _date
         );
-        _parts[partIdCounter].post_processing[
-            _parts[partIdCounter].postProcessingIdCounter
+
+        //Adds post_processing with counter Id into part
+        _parts[partId].post_processing[
+            _parts[partId].postProcessingIdCounter
         ] = postProcessing;
-        _parts[partIdCounter].postProcessingIdCounter++;
+
+        //Improves counter for next time
+        _parts[partId].postProcessingIdCounter++;
     }
 
     function addQualityCheck(
@@ -87,16 +103,23 @@ contract MAMSupplyChain {
         uint256 _process_parameters,
         uint256 _date
     ) public {
+        //Changes ownership to the responsible company
         this.modifyOwnership(partId, _company);
+
+        //Creates a temporary instance for quality check
         QualityCheck memory qualityCheck = QualityCheck(
             _company,
             _process,
             _process_parameters,
             _date
         );
-        _parts[partIdCounter].quality_check[
-            _parts[partIdCounter].qualityCheckIdCounter
+
+        //Adds quality_check with counter Id into part
+        _parts[partId].quality_check[
+            _parts[partId].qualityCheckIdCounter
         ] = qualityCheck;
-        _parts[partIdCounter].qualityCheckIdCounter++;
+
+        //Improves counter for next time
+        _parts[partId].qualityCheckIdCounter++;
     }
 }
