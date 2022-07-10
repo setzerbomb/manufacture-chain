@@ -40,7 +40,7 @@ contract MAMSupplyChain {
 
     function modifyOwnership(uint256 partId, address newOwner) public {
         //Blocks any senders that are not the actual owner of the part
-        require(msg.sender == _parts[partId].ownership);
+        require(msg.sender == _parts[partId].ownership || msg.sender == address(this));
 
         _parts[partId].ownership = newOwner;
     }
