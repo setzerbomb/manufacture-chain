@@ -1,8 +1,0 @@
-example code source:
-https://medium.com/hackernoon/implementing-a-supply-chain-in-the-ethereum-blockchain-dcc91ea718ab
-
-testing code in remix
-https://medium.com/codex/how-to-test-a-smart-contract-with-remix-b2e9669997dd
-
-setting up git
-https://medium.com/remix-ide/github-in-remix-ide-356de378f7da
