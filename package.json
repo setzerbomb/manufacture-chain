@@ -5,10 +5,27 @@
   "repository": "git@github.com:MatheusFBBueno/blockchain-supplychain-project.git",
   "author": "set <6942774+setzerbomb@users.noreply.github.com>",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules src/server.ts",
+    "compile": "yarn hardhat run scripts/deploy.ts"
+  },
   "dependencies": {
-    "hardhat": "^2.10.1"
+    "dotenv": "^16.0.1",
+    "eslint-import-resolver-typescript": "^3.2.7",
+    "express": "^4.18.1"
   },
   "devDependencies": {
+    "hardhat": "^2.10.1",
+    "@types/express": "^4.17.13",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.30.6",
+    "eslint": "^8.20.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.7.1",
     "@ethersproject/abi": "^5.4.7",
     "@ethersproject/providers": "^5.4.7",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
@@ -27,6 +44,7 @@
     "solidity-coverage": "^0.7.21",
     "ts-node": ">=8.0.0",
     "typechain": "^8.1.0",
-    "typescript": ">=4.5.0"
+    "typescript": ">=4.5.0",
+    "ts-node-dev": "^2.0.0"
   }
 }
