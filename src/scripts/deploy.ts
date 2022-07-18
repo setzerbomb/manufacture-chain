@@ -12,14 +12,14 @@ async function main() {
   const abi = fs.readFileSync(
     path.join(
       process.env.BUILD_HOME as string,
-      '/contracts/dist/supply-chain_sol_MAMSupplyChain.abi',
+      '/contracts/dist/supply-chain_sol_SupplyChain.abi',
     ),
     'utf8',
   );
   const bin = fs.readFileSync(
     path.join(
       process.env.BUILD_HOME as string,
-      '/contracts/dist/supply-chain_sol_MAMSupplyChain.bin',
+      '/contracts/dist/supply-chain_sol_SupplyChain.bin',
     ),
     'utf8',
   );

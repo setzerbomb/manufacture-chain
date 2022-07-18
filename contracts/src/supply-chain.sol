@@ -1,10 +1,10 @@
-"SPDX-License-Identifier: MIT"
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
 /*
 Temporary definitions for problem domain structs and contracts
 */
-contract MAMSupplyChain {
+contract SupplyChain {
     struct PostProcessing {
         address company;
         string process; //process name
@@ -129,5 +129,10 @@ contract MAMSupplyChain {
         returns (QualityCheck[] memory)
     {
         return _parts[part_id].quality_check;
+    }
+
+    function getPart(uint256 part_id) public view returns (Part memory) {
+        Part memory part = _parts[part_id];
+        return part;
     }
 }
