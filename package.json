@@ -11,6 +11,7 @@
     "compile": "yarn hardhat run scripts/deploy.ts"
   },
   "dependencies": {
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
     "argon2": "^0.28.7",
     "dotenv": "^16.0.1",
     "eslint-import-resolver-typescript": "^3.2.7",
