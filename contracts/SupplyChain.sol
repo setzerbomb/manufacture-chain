@@ -8,14 +8,14 @@ contract SupplyChain {
     struct PostProcessing {
         address company;
         string process; //process name
-        uint256 process_parameters; /*hash to original data. This protects industrial secrets.*/
+        string process_parameters; /*hash to original data. This protects industrial secrets.*/
         uint256 date; /*unix epoch time*/
     }
 
     struct QualityCheck {
         address company;
         string process; //process name
-        uint256 process_parameters; /*hash to original data. This protects industrial secrets.*/
+        string process_parameters; /*hash to original data. This protects industrial secrets.*/
         uint256 date; /*unix epoch time*/
     }
 
@@ -25,7 +25,7 @@ contract SupplyChain {
         address manufacturedBy;
         address designedBy;
         string process; //process name
-        uint256 process_parameters; /*hash to original data. This protects industrial secrets.*/
+        string process_parameters; /*hash to original data. This protects industrial secrets.*/
         //Post_processing array
         PostProcessing[] post_processing;
         QualityCheck[] quality_check;
@@ -41,7 +41,8 @@ contract SupplyChain {
         //Blocks any senders that are not the actual owner of the part or the contract itself
         require(
             msg.sender == _parts[partId].ownership ||
-                msg.sender == address(this)
+                msg.sender == address(this),
+            "You aren't the owner"
         );
 
         _parts[partId].ownership = newOwner;
@@ -52,7 +53,7 @@ contract SupplyChain {
         address _manufacturedBy,
         address _designedBy,
         string memory _process,
-        uint256 _process_parameters,
+        string memory _process_parameters,
         uint256 _manufacturing_date
     ) public {
         Part storage part = _parts[partIdCounter];
@@ -75,7 +76,7 @@ contract SupplyChain {
         uint256 partId,
         address _company,
         string memory _process,
-        uint256 _process_parameters,
+        string memory _process_parameters,
         uint256 _date
     ) public {
         //Changes ownership to the responsible company
@@ -105,7 +106,7 @@ contract SupplyChain {
         uint256 partId,
         address _company,
         string memory _process,
-        uint256 _process_parameters,
+        string memory _process_parameters,
         uint256 _date
     ) public {
         //Changes ownership to the responsible company

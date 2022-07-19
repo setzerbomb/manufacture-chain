@@ -1,124 +1,278 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
-import { expect } from "chai";
-import { ethers } from "hardhat";
+import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { ethers } from 'hardhat';
+import argon2 from 'argon2';
 
-describe("Lock", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshopt in every test.
-  async function deployOneYearLockFixture() {
-    const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-    const ONE_GWEI = 1_000_000_000;
+import Part from '../src/model/entities/Part';
+import { BigNumber } from 'ethers';
+import { SupplyChain } from '../typechain-types';
+import PartService from '../src/model/services/PartService';
+import PostProcessingService from '../src/model/services/PostProcessingService';
+import PostProcessing from '../src/model/entities/PostProcessing';
+import QualityCheck from '../src/model/entities/QualityCheck';
+import QualityCheckService from '../src/model/services/QualityCheckService';
 
-    const lockedAmount = ONE_GWEI;
-    const unlockTime = (await time.latest()) + ONE_YEAR_IN_SECS;
+describe('SupplyChain', function () {
+  async function deploy() {
+    const [owner, manufacturer, designer] = await ethers.getSigners();
 
-    // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await ethers.getSigners();
+    const SupplyChain = await ethers.getContractFactory('SupplyChain');
+    const supplyChain = await SupplyChain.deploy();
 
-    const Lock = await ethers.getContractFactory("Lock");
-    const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+    const chainData = { supplyChain, owner, manufacturer, designer };
 
-    return { lock, unlockTime, lockedAmount, owner, otherAccount };
+    return chainData;
   }
 
-  describe("Deployment", function () {
-    it("Should set the right unlockTime", async function () {
-      const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
+  async function hashEmptyObject() {
+    return await argon2.hash(JSON.stringify({}));
+  }
 
-      expect(await lock.unlockTime()).to.equal(unlockTime);
-    });
+  async function createPart(
+    supplyChain: SupplyChain,
+    owner: string,
+    manufacturer: string,
+    designer: string,
+    id: number,
+  ) {
+    const partService = PartService(supplyChain);
 
-    it("Should set the right owner", async function () {
-      const { lock, owner } = await loadFixture(deployOneYearLockFixture);
+    const part: Part = {
+      ownership: owner,
+      manufacturedBy: manufacturer,
+      designedBy: designer,
+      manufacturingDate: BigNumber.from(new Date().getTime()).toString(),
+      process: 'DESIGN',
+      processParameters: await hashEmptyObject(),
+    };
 
-      expect(await lock.owner()).to.equal(owner.address);
-    });
+    await partService.create(part);
 
-    it("Should receive and store the funds to lock", async function () {
-      const { lock, lockedAmount } = await loadFixture(
-        deployOneYearLockFixture
+    const retrievedPart = await partService.get(id);
+
+    return { part, retrievedPart };
+  }
+
+  describe('Part', async function () {
+    it('Should add a part to the blockchain', async function () {
+      const { supplyChain, owner, manufacturer, designer } = await loadFixture(
+        deploy,
       );
 
-      expect(await ethers.provider.getBalance(lock.address)).to.equal(
-        lockedAmount
+      const { retrievedPart, part } = await createPart(
+        supplyChain,
+        await owner.getAddress(),
+        await manufacturer.getAddress(),
+        await designer.getAddress(),
+        0,
+      );
+
+      expect(retrievedPart).to.contains(part);
+      expect(retrievedPart.id).to.equals(0);
+    });
+
+    it('Should retrieve a part from the blockchain', async function () {
+      const { supplyChain, owner, manufacturer, designer } = await loadFixture(
+        deploy,
+      );
+
+      const partService = PartService(supplyChain);
+
+      await createPart(
+        supplyChain,
+        await owner.getAddress(),
+        await manufacturer.getAddress(),
+        await designer.getAddress(),
+        0,
+      );
+
+      const retrievedPartArray = await partService.get(0);
+
+      expect(retrievedPartArray['id']).to.equals(0);
+      expect(retrievedPartArray['ownership']).to.equals(
+        await owner.getAddress(),
       );
     });
 
-    it("Should fail if the unlockTime is not in the future", async function () {
-      // We don't use the fixture here because we want a different deployment
-      const latestTime = await time.latest();
-      const Lock = await ethers.getContractFactory("Lock");
-      await expect(Lock.deploy(latestTime, { value: 1 })).to.be.revertedWith(
-        "Unlock time should be in the future"
+    it('Should allow ownership changes', async function () {
+      const { supplyChain, owner, manufacturer, designer } = await loadFixture(
+        deploy,
       );
+
+      const { retrievedPart: part } = await createPart(
+        supplyChain,
+        await owner.getAddress(),
+        await manufacturer.getAddress(),
+        await designer.getAddress(),
+        0,
+      );
+
+      expect(part.ownership).to.equals(await owner.getAddress());
+
+      if (part.id !== 0) throw new Error('Part id not found');
+
+      const partService = PartService(supplyChain);
+
+      await partService.modifyOwnership(
+        part.id,
+        await manufacturer.getAddress(),
+      );
+
+      const retrievedPart: Part = await partService.get(part.id);
+
+      expect(retrievedPart.ownership).to.equals(
+        await manufacturer.getAddress(),
+      );
+    });
+
+    it('Should not allow change ownership if is not the owner of the part', async function () {
+      const { supplyChain, owner, designer, manufacturer } = await loadFixture(
+        deploy,
+      );
+
+      const { retrievedPart: part } = await createPart(
+        supplyChain,
+        await manufacturer.getAddress(),
+        await manufacturer.getAddress(),
+        await designer.getAddress(),
+        0,
+      );
+
+      if (part.id !== 0) throw new Error('Part id not found');
+
+      const partService = PartService(supplyChain);
+
+      expect(
+        partService.modifyOwnership(part.id, await manufacturer.getAddress()),
+      ).to.be.revertedWith("You aren't the owner");
     });
   });
 
-  describe("Withdrawals", function () {
-    describe("Validations", function () {
-      it("Should revert with the right error if called too soon", async function () {
-        const { lock } = await loadFixture(deployOneYearLockFixture);
+  describe('Post Processing', async function () {
+    it('Should add post processing information of a part to the blockchain', async function () {
+      const { supplyChain, owner, manufacturer, designer } = await loadFixture(
+        deploy,
+      );
 
-        await expect(lock.withdraw()).to.be.revertedWith(
-          "You can't withdraw yet"
-        );
-      });
+      const { retrievedPart: part } = await createPart(
+        supplyChain,
+        await owner.getAddress(),
+        await manufacturer.getAddress(),
+        await designer.getAddress(),
+        0,
+      );
 
-      it("Should revert with the right error if called from another account", async function () {
-        const { lock, unlockTime, otherAccount } = await loadFixture(
-          deployOneYearLockFixture
-        );
+      if (part.id !== 0) throw new Error('Part id not found');
 
-        // We can increase the time in Hardhat Network
-        await time.increaseTo(unlockTime);
+      expect(part.id).to.equals(0);
 
-        // We use lock.connect() to send a transaction from another account
-        await expect(lock.connect(otherAccount).withdraw()).to.be.revertedWith(
-          "You aren't the owner"
-        );
-      });
+      const postProcessing: PostProcessing = {
+        company: await manufacturer.getAddress(),
+        process: 'POST_PROCESS_1',
+        processParameters: await hashEmptyObject(),
+        date: BigNumber.from(new Date().getTime()).toString(),
+      };
 
-      it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
-        const { lock, unlockTime } = await loadFixture(
-          deployOneYearLockFixture
-        );
+      const postProcessingService = PostProcessingService(supplyChain);
 
-        // Transactions are sent using the first signer by default
-        await time.increaseTo(unlockTime);
+      await postProcessingService.create(0, postProcessing);
 
-        await expect(lock.withdraw()).not.to.be.reverted;
-      });
+      const retrievedPostProcessing = await postProcessingService.get(0);
+
+      expect(retrievedPostProcessing[0]).to.contains(postProcessing);
     });
 
-    describe("Events", function () {
-      it("Should emit an event on withdrawals", async function () {
-        const { lock, unlockTime, lockedAmount } = await loadFixture(
-          deployOneYearLockFixture
-        );
+    it('Should retrieve post processing information from the blockchain', async function () {
+      const { supplyChain, owner, manufacturer, designer } = await loadFixture(
+        deploy,
+      );
 
-        await time.increaseTo(unlockTime);
+      await createPart(
+        supplyChain,
+        await owner.getAddress(),
+        await manufacturer.getAddress(),
+        await designer.getAddress(),
+        0,
+      );
 
-        await expect(lock.withdraw())
-          .to.emit(lock, "Withdrawal")
-          .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
-      });
+      const postProcessing: PostProcessing = {
+        company: await manufacturer.getAddress(),
+        process: 'POST_PROCESS_1',
+        processParameters: await hashEmptyObject(),
+        date: BigNumber.from(new Date().getTime()).toString(),
+      };
+
+      const postProcessingService = PostProcessingService(supplyChain);
+
+      await postProcessingService.create(0, postProcessing);
+
+      const retrievedPostProcessing = await postProcessingService.get(0);
+
+      expect(retrievedPostProcessing[0]).to.contains(postProcessing);
+    });
+  });
+
+  describe('Quality Check', async function () {
+    it('Should add quality check information of a part to the blockchain', async function () {
+      const { supplyChain, owner, manufacturer, designer } = await loadFixture(
+        deploy,
+      );
+
+      const { retrievedPart: part } = await createPart(
+        supplyChain,
+        await owner.getAddress(),
+        await manufacturer.getAddress(),
+        await designer.getAddress(),
+        0,
+      );
+
+      if (part.id !== 0) throw new Error('Part id not found');
+
+      expect(part.id).to.equals(0);
+
+      const qualityCheck: QualityCheck = {
+        company: await manufacturer.getAddress(),
+        process: 'QUALITY_CHECK_1',
+        processParameters: await hashEmptyObject(),
+        date: BigNumber.from(new Date().getTime()).toString(),
+      };
+
+      const qualityCheckService = QualityCheckService(supplyChain);
+
+      await qualityCheckService.create(0, qualityCheck);
+
+      const retrievedQualityCheck = await qualityCheckService.get(0);
+
+      expect(retrievedQualityCheck[0]).to.contains(qualityCheck);
     });
 
-    describe("Transfers", function () {
-      it("Should transfer the funds to the owner", async function () {
-        const { lock, unlockTime, lockedAmount, owner } = await loadFixture(
-          deployOneYearLockFixture
-        );
+    it('Should retrieve post processing information from the blockchain', async function () {
+      const { supplyChain, owner, manufacturer, designer } = await loadFixture(
+        deploy,
+      );
 
-        await time.increaseTo(unlockTime);
+      await createPart(
+        supplyChain,
+        await owner.getAddress(),
+        await manufacturer.getAddress(),
+        await designer.getAddress(),
+        0,
+      );
 
-        await expect(lock.withdraw()).to.changeEtherBalances(
-          [owner, lock],
-          [lockedAmount, -lockedAmount]
-        );
-      });
+      const qualityCheck: QualityCheck = {
+        company: await manufacturer.getAddress(),
+        process: 'QUALITY_CHECK_1',
+        processParameters: await hashEmptyObject(),
+        date: BigNumber.from(new Date().getTime()).toString(),
+      };
+
+      const qualityCheckService = QualityCheckService(supplyChain);
+
+      await qualityCheckService.create(0, qualityCheck);
+
+      const retrievedQualityCheck = await qualityCheckService.get(0);
+
+      expect(retrievedQualityCheck[0]).to.contains(qualityCheck);
     });
   });
 });
