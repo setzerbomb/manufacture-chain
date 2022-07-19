@@ -3,8 +3,14 @@ import Part from '../entities/Part';
 import { mapPostProcessArrayToObject } from './PostProcessingService';
 import { mapQualityCheckArrayToObject } from './QualityCheckService';
 
+export interface IPartService {
+  create: (part: Part) => void;
+  get: (id: number) => Promise<Part>;
+  modifyOwnership: (id: number, newOwner: string) => void;
+}
+
 export default (supplyChain: SupplyChain) => {
-  const self = {
+  const self: IPartService = {
     create: async ({
       ownership,
       designedBy,
