@@ -1,5 +1,5 @@
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { BigNumber } from 'ethers';
+import PostProcessing from './PostProcessing';
+import QualityCheck from './QualityCheck';
 
 export default interface Part {
   id?: number;
@@ -9,6 +9,6 @@ export default interface Part {
   process: string;
   processParameters: string;
   manufacturingDate: string;
-  postProcessing?: any[];
-  qualityCheck?: any[];
+  postProcessing?: PostProcessing[];
+  qualityCheck?: QualityCheck[];
 }

@@ -1,6 +1,22 @@
 import { SupplyChain } from '../../../typechain-types';
 import QualityCheck from '../entities/QualityCheck';
 
+export function mapQualityCheckArrayToObject([
+  company,
+  process,
+  processParameters,
+  date,
+]: any) {
+  const qualityCheck: QualityCheck = {
+    company,
+    process,
+    processParameters,
+    date: date.toString(),
+  };
+
+  return qualityCheck;
+}
+
 export default (supplyChain: SupplyChain) => {
   const self = {
     create: async (
@@ -26,16 +42,7 @@ export default (supplyChain: SupplyChain) => {
     },
     get: async (id: number) => {
       return (await supplyChain.getPartQualityCheck(id)).map(
-        ([company, process, processParameters, date]) => {
-          const qualityCheck: QualityCheck = {
-            company,
-            process,
-            processParameters,
-            date: date.toString(),
-          };
-
-          return qualityCheck;
-        },
+        mapQualityCheckArrayToObject,
       );
     },
   };

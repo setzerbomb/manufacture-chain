@@ -1,5 +1,7 @@
 import { SupplyChain } from '../../../typechain-types';
 import Part from '../entities/Part';
+import { mapPostProcessArrayToObject } from './PostProcessingService';
+import { mapQualityCheckArrayToObject } from './QualityCheckService';
 
 export default (supplyChain: SupplyChain) => {
   const self = {
@@ -42,8 +44,12 @@ export default (supplyChain: SupplyChain) => {
         manufacturingDate: retrievedPartArray['manufacturing_date'].toString(),
         process: retrievedPartArray['process'],
         processParameters: retrievedPartArray['process_parameters'],
-        postProcessing: retrievedPartArray['post_processing'],
-        qualityCheck: retrievedPartArray['quality_check'],
+        postProcessing: retrievedPartArray['post_processing'].map(
+          mapPostProcessArrayToObject,
+        ),
+        qualityCheck: retrievedPartArray['quality_check'].map(
+          mapQualityCheckArrayToObject,
+        ),
       };
 
       return retrievedPart;
