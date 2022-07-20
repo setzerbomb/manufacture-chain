@@ -3,6 +3,12 @@ import { Router } from 'express';
 
 const partsRouter = Router();
 
-partsRouter.get('/', PartsController.get);
+partsRouter.get('/:id', PartsController.get);
+
+partsRouter.post('/', PartsController.create);
+
+partsRouter.patch('/:id', PartsController.modifyOwnership);
+
+partsRouter.get('/history/:id', PartsController.history);
 
 export default partsRouter;

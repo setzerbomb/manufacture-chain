@@ -23,6 +23,7 @@ class PartService {
 
   public async create({
     ownership,
+    first,
     designedBy,
     manufacturedBy,
     manufacturingDate,
@@ -40,6 +41,7 @@ class PartService {
 
     const transactionResponse = await this.supplyChain.createPart(
       part.ownership,
+      part.ownership,
       part.manufacturedBy,
       part.designedBy,
       part.process,
@@ -56,6 +58,7 @@ class PartService {
     const retrievedPart: Part = {
       id: retrievedPartArray['id'].toNumber(),
       ownership: retrievedPartArray['ownership'],
+      first: retrievedPartArray['first'],
       manufacturedBy: retrievedPartArray['manufacturedBy'],
       designedBy: retrievedPartArray['designedBy'],
       manufacturingDate: retrievedPartArray['manufacturing_date'].toString(),
@@ -79,6 +82,19 @@ class PartService {
     );
 
     await transactionResponse.wait(1);
+  }
+
+  public async history(id: number) {
+    const { first, manufacturingDate, postProcessing, qualityCheck } =
+      await this.get(id);
+
+    return [{ date: manufacturingDate, company: first }]
+      .concat(
+        (postProcessing || []).map(({ company, date }) => ({ company, date })),
+      )
+      .concat(
+        (qualityCheck || []).map(({ company, date }) => ({ company, date })),
+      );
   }
 }
 

@@ -39,6 +39,7 @@ describe('SupplyChain', function () {
 
     const part: Part = {
       ownership: owner,
+      first: owner,
       manufacturedBy: manufacturer,
       designedBy: designer,
       manufacturingDate: BigNumber.from(new Date().getTime()).toString(),
@@ -165,6 +166,8 @@ describe('SupplyChain', function () {
       if (part.id !== 0) throw new Error('Part id not found');
 
       expect(part.id).to.equals(0);
+
+      console.log(part);
 
       const postProcessing: PostProcessing = {
         company: await manufacturer.getAddress(),

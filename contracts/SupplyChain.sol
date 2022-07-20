@@ -22,6 +22,7 @@ contract SupplyChain {
     struct Part {
         uint256 id;
         address ownership;
+        address first;
         address manufacturedBy;
         address designedBy;
         string process; //process name
@@ -50,6 +51,7 @@ contract SupplyChain {
 
     function createPart(
         address _ownership,
+        address _first,
         address _manufacturedBy,
         address _designedBy,
         string memory _process,
@@ -60,6 +62,7 @@ contract SupplyChain {
 
         part.id = partIdCounter;
         part.ownership = _ownership;
+        part.first = _first;
         part.manufacturedBy = _manufacturedBy;
         part.designedBy = _designedBy;
         part.process = _process;

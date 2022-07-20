@@ -1,3 +1,4 @@
+import Part from '@modules/supply-chain/model/entities/Part';
 import PartService from '@modules/supply-chain/model/services/PartService';
 import { Request, Response, NextFunction } from 'express';
 
@@ -8,16 +9,35 @@ const PartsController = () => {
     get: async (req: Request, res: Response) => {
       const partService = container.resolve(PartService);
 
-      await partService.create({
-        ownership: '0xaD3eC8bbb78E694Ab813e8Ca09B3A26Fde09d827',
-        designedBy: '0xaD3eC8bbb78E694Ab813e8Ca09B3A26Fde09d827',
-        manufacturedBy: '0xaD3eC8bbb78E694Ab813e8Ca09B3A26Fde09d827',
-        process: 'AFTER',
-        manufacturingDate: new Date().getMilliseconds().toString(),
-        processParameters: 'params',
-      });
+      const id = Number(req.params?.id);
 
-      return res.json(await partService.get(0));
+      return res.json(await partService.get(id));
+    },
+    create: async (req: Request, res: Response) => {
+      const partService = container.resolve(PartService);
+
+      const part: Part = req.body;
+
+      await partService.create(part);
+
+      return res.status(201).send();
+    },
+    modifyOwnership: async (req: Request, res: Response) => {
+      const partService = container.resolve(PartService);
+
+      const id = Number(req.params?.id);
+      const { owner } = req.body;
+
+      await partService.modifyOwnership(id, owner);
+
+      return res.status(201).send();
+    },
+    history: async (req: Request, res: Response) => {
+      const partService = container.resolve(PartService);
+
+      const id = Number(req.params?.id);
+
+      return res.json(await partService.history(id));
     },
   };
 

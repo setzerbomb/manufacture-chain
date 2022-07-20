@@ -4,6 +4,7 @@ import QualityCheck from './QualityCheck';
 export default interface Part {
   id?: number;
   ownership: string;
+  first?: string;
   manufacturedBy: string;
   designedBy: string;
   process: string;
