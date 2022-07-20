@@ -94,7 +94,8 @@ class PartService {
       )
       .concat(
         (qualityCheck || []).map(({ company, date }) => ({ company, date })),
-      );
+      )
+      .sort(({ date: a }, { date: b }) => (a > b ? 1 : -1));
   }
 }
 
