@@ -3,14 +3,14 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import argon2 from 'argon2';
 
-import Part from '../src/model/entities/Part';
+import Part from '@modules/supply-chain/model/entities/Part';
 import { BigNumber } from 'ethers';
 import { SupplyChain } from '../typechain-types';
-import PartService from '../src/model/services/PartService';
-import PostProcessingService from '../src/model/services/PostProcessingService';
-import PostProcessing from '../src/model/entities/PostProcessing';
-import QualityCheck from '../src/model/entities/QualityCheck';
-import QualityCheckService from '../src/model/services/QualityCheckService';
+import PartService from '@modules/supply-chain/model/services/PartService';
+import PostProcessingService from '@modules/supply-chain/model/services/PostProcessingService';
+import PostProcessing from '@modules/supply-chain/model/entities/PostProcessing';
+import QualityCheck from '@modules/supply-chain/model/entities/QualityCheck';
+import QualityCheckService from '@modules/supply-chain/model/services/QualityCheckService';
 
 describe('SupplyChain', function () {
   async function deploy() {
@@ -35,7 +35,7 @@ describe('SupplyChain', function () {
     designer: string,
     id: number,
   ) {
-    const partService = PartService(supplyChain);
+    const partService = new PartService(supplyChain);
 
     const part: Part = {
       ownership: owner,
@@ -76,7 +76,7 @@ describe('SupplyChain', function () {
         deploy,
       );
 
-      const partService = PartService(supplyChain);
+      const partService = new PartService(supplyChain);
 
       await createPart(
         supplyChain,
@@ -111,7 +111,7 @@ describe('SupplyChain', function () {
 
       if (part.id !== 0) throw new Error('Part id not found');
 
-      const partService = PartService(supplyChain);
+      const partService = new PartService(supplyChain);
 
       await partService.modifyOwnership(
         part.id,
@@ -140,7 +140,7 @@ describe('SupplyChain', function () {
 
       if (part.id !== 0) throw new Error('Part id not found');
 
-      const partService = PartService(supplyChain);
+      const partService = new PartService(supplyChain);
 
       expect(
         partService.modifyOwnership(part.id, await manufacturer.getAddress()),
@@ -173,7 +173,7 @@ describe('SupplyChain', function () {
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
-      const postProcessingService = PostProcessingService(supplyChain);
+      const postProcessingService = new PostProcessingService(supplyChain);
 
       await postProcessingService.create(0, postProcessing);
 
@@ -202,7 +202,7 @@ describe('SupplyChain', function () {
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
-      const postProcessingService = PostProcessingService(supplyChain);
+      const postProcessingService = new PostProcessingService(supplyChain);
 
       await postProcessingService.create(0, postProcessing);
 
@@ -237,7 +237,7 @@ describe('SupplyChain', function () {
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
-      const qualityCheckService = QualityCheckService(supplyChain);
+      const qualityCheckService = new QualityCheckService(supplyChain);
 
       await qualityCheckService.create(0, qualityCheck);
 
@@ -266,7 +266,7 @@ describe('SupplyChain', function () {
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
-      const qualityCheckService = QualityCheckService(supplyChain);
+      const qualityCheckService = new QualityCheckService(supplyChain);
 
       await qualityCheckService.create(0, qualityCheck);
 

@@ -1,3 +1,5 @@
+import 'tsconfig-paths/register';
+import 'reflect-metadata';
 import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
 import dotenv from 'dotenv';
