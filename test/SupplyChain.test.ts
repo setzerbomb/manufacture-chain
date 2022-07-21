@@ -167,8 +167,6 @@ describe('SupplyChain', function () {
 
       expect(part.id).to.equals(0);
 
-      console.log(part);
-
       const postProcessing: PostProcessing = {
         company: await manufacturer.getAddress(),
         process: 'POST_PROCESS_1',
@@ -249,7 +247,7 @@ describe('SupplyChain', function () {
       expect(retrievedQualityCheck[0]).to.contains(qualityCheck);
     });
 
-    it('Should retrieve post processing information from the blockchain', async function () {
+    it('Should retrieve quality check information from the blockchain', async function () {
       const { supplyChain, owner, manufacturer, designer } = await loadFixture(
         deploy,
       );

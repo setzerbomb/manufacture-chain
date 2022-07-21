@@ -9,6 +9,6 @@ partsRouter.post('/', PartsController.create);
 
 partsRouter.patch('/:id', PartsController.modifyOwnership);
 
-partsRouter.get('/history/:id', PartsController.history);
+partsRouter.get('/:id/history', PartsController.history);
 
 export default partsRouter;
