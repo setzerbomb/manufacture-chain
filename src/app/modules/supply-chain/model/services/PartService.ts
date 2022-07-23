@@ -1,3 +1,5 @@
+import { ethers } from 'hardhat';
+
 import { inject, injectable } from 'tsyringe';
 import { SupplyChain } from 'typechain-types';
 import Part from '../entities/Part';
@@ -36,7 +38,7 @@ class PartService {
       designedBy,
       manufacturingDate,
       process,
-      processParameters,
+      processParameters: ethers.utils.id(processParameters),
     };
 
     const transactionResponse = await this.supplyChain.createPart(

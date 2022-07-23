@@ -1,3 +1,5 @@
+import { ethers } from 'hardhat';
+
 import { inject, injectable } from 'tsyringe';
 import { SupplyChain } from 'typechain-types';
 import QualityCheck from '../entities/QualityCheck';
@@ -36,7 +38,7 @@ class QualityCheckService {
     const qualityCheck: QualityCheck = {
       company,
       process,
-      processParameters,
+      processParameters: ethers.utils.id(processParameters),
       date,
     };
 

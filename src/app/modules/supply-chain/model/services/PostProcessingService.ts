@@ -1,3 +1,5 @@
+import { ethers } from 'hardhat';
+
 import { inject, injectable } from 'tsyringe';
 import { SupplyChain } from 'typechain-types';
 import PostProcessing from '../entities/PostProcessing';
@@ -36,7 +38,7 @@ class PostProcessingService {
     const postProcessing: PostProcessing = {
       company,
       process,
-      processParameters,
+      processParameters: ethers.utils.id(processParameters),
       date,
     };
 

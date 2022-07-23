@@ -1,7 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import argon2 from 'argon2';
+import { v4 as uuidv4 } from 'uuid';
 
 import Part from '@modules/supply-chain/model/entities/Part';
 import { BigNumber } from 'ethers';
@@ -13,6 +13,10 @@ import QualityCheck from '@modules/supply-chain/model/entities/QualityCheck';
 import QualityCheckService from '@modules/supply-chain/model/services/QualityCheckService';
 
 describe('SupplyChain', function () {
+  function hashify(data: string) {
+    return ethers.utils.id(data);
+  }
+
   async function deploy() {
     const [owner, manufacturer, designer] = await ethers.getSigners();
 
@@ -22,10 +26,6 @@ describe('SupplyChain', function () {
     const chainData = { supplyChain, owner, manufacturer, designer };
 
     return chainData;
-  }
-
-  async function hashEmptyObject() {
-    return await argon2.hash(JSON.stringify({}));
   }
 
   async function createPart(
@@ -44,7 +44,7 @@ describe('SupplyChain', function () {
       designedBy: designer,
       manufacturingDate: BigNumber.from(new Date().getTime()).toString(),
       process: 'DESIGN',
-      processParameters: await hashEmptyObject(),
+      processParameters: uuidv4(),
     };
 
     await partService.create(part);
@@ -67,6 +67,8 @@ describe('SupplyChain', function () {
         await designer.getAddress(),
         0,
       );
+
+      part.processParameters = hashify(part.processParameters);
 
       expect(retrievedPart).to.contains(part);
       expect(retrievedPart.id).to.equals(0);
@@ -168,7 +170,7 @@ describe('SupplyChain', function () {
       const postProcessing: PostProcessing = {
         company: await manufacturer.getAddress(),
         process: 'POST_PROCESS_1',
-        processParameters: await hashEmptyObject(),
+        processParameters: uuidv4(),
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
@@ -179,7 +181,7 @@ describe('SupplyChain', function () {
       const qualityCheck: QualityCheck = {
         company: await manufacturer.getAddress(),
         process: 'QUALITY_CHECK_1',
-        processParameters: await hashEmptyObject(),
+        processParameters: uuidv4(),
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
@@ -219,7 +221,7 @@ describe('SupplyChain', function () {
       const postProcessing: PostProcessing = {
         company: await manufacturer.getAddress(),
         process: 'POST_PROCESS_1',
-        processParameters: await hashEmptyObject(),
+        processParameters: uuidv4(),
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
@@ -228,6 +230,10 @@ describe('SupplyChain', function () {
       await postProcessingService.create(0, postProcessing);
 
       const retrievedPostProcessing = await postProcessingService.get(0);
+
+      postProcessing.processParameters = hashify(
+        postProcessing.processParameters,
+      );
 
       expect(retrievedPostProcessing[0]).to.contains(postProcessing);
     });
@@ -248,7 +254,7 @@ describe('SupplyChain', function () {
       const postProcessing: PostProcessing = {
         company: await manufacturer.getAddress(),
         process: 'POST_PROCESS_1',
-        processParameters: await hashEmptyObject(),
+        processParameters: uuidv4(),
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
@@ -257,6 +263,10 @@ describe('SupplyChain', function () {
       await postProcessingService.create(0, postProcessing);
 
       const retrievedPostProcessing = await postProcessingService.get(0);
+
+      postProcessing.processParameters = hashify(
+        postProcessing.processParameters,
+      );
 
       expect(retrievedPostProcessing[0]).to.contains(postProcessing);
     });
@@ -283,7 +293,7 @@ describe('SupplyChain', function () {
       const qualityCheck: QualityCheck = {
         company: await manufacturer.getAddress(),
         process: 'QUALITY_CHECK_1',
-        processParameters: await hashEmptyObject(),
+        processParameters: uuidv4(),
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
@@ -292,6 +302,8 @@ describe('SupplyChain', function () {
       await qualityCheckService.create(0, qualityCheck);
 
       const retrievedQualityCheck = await qualityCheckService.get(0);
+
+      qualityCheck.processParameters = hashify(qualityCheck.processParameters);
 
       expect(retrievedQualityCheck[0]).to.contains(qualityCheck);
     });
@@ -312,7 +324,7 @@ describe('SupplyChain', function () {
       const qualityCheck: QualityCheck = {
         company: await manufacturer.getAddress(),
         process: 'QUALITY_CHECK_1',
-        processParameters: await hashEmptyObject(),
+        processParameters: uuidv4(),
         date: BigNumber.from(new Date().getTime()).toString(),
       };
 
@@ -321,6 +333,8 @@ describe('SupplyChain', function () {
       await qualityCheckService.create(0, qualityCheck);
 
       const retrievedQualityCheck = await qualityCheckService.get(0);
+
+      qualityCheck.processParameters = hashify(qualityCheck.processParameters);
 
       expect(retrievedQualityCheck[0]).to.contains(qualityCheck);
     });

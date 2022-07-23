@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
 import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-ethers';
 
 dotenv.config();
 
