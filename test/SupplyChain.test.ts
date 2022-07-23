@@ -147,6 +147,55 @@ describe('SupplyChain', function () {
         partService.modifyOwnership(part.id, await manufacturer.getAddress()),
       ).to.be.revertedWith("You aren't the owner");
     });
+
+    it('Should retrieve part history from the blockchain', async function () {
+      const { supplyChain, owner, manufacturer, designer } = await loadFixture(
+        deploy,
+      );
+
+      const { retrievedPart: part } = await createPart(
+        supplyChain,
+        await owner.getAddress(),
+        await manufacturer.getAddress(),
+        await designer.getAddress(),
+        0,
+      );
+
+      if (part.id !== 0) throw new Error('Part id not found');
+
+      expect(part.id).to.equals(0);
+
+      const postProcessing: PostProcessing = {
+        company: await manufacturer.getAddress(),
+        process: 'POST_PROCESS_1',
+        processParameters: await hashEmptyObject(),
+        date: BigNumber.from(new Date().getTime()).toString(),
+      };
+
+      const postProcessingService = new PostProcessingService(supplyChain);
+
+      await postProcessingService.create(0, postProcessing);
+
+      const qualityCheck: QualityCheck = {
+        company: await manufacturer.getAddress(),
+        process: 'QUALITY_CHECK_1',
+        processParameters: await hashEmptyObject(),
+        date: BigNumber.from(new Date().getTime()).toString(),
+      };
+
+      const qualityCheckService = new QualityCheckService(supplyChain);
+
+      await qualityCheckService.create(0, qualityCheck);
+
+      const partService = new PartService(supplyChain);
+
+      const partHistory = await partService.history(0);
+
+      expect(partHistory.length).to.equals(3);
+      expect(partHistory[0].date).to.equals(part.manufacturingDate);
+      expect(partHistory[1].date).to.equals(postProcessing.date);
+      expect(partHistory[2].date).to.equals(qualityCheck.date);
+    });
   });
 
   describe('Post Processing', async function () {
