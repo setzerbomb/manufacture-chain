@@ -28,7 +28,13 @@ const PartsController = () => {
       const id = Number(req.params?.id);
       const { owner } = req.body;
 
-      await partService.modifyOwnership(id, owner);
+      try {
+        await partService.modifyOwnership(id, owner);
+      } catch {
+        return res
+          .status(500)
+          .json({ message: 'You are not the resource owner' });
+      }
 
       return res.status(201).send();
     },
