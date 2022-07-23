@@ -22,19 +22,19 @@ const PostProcessingController = () => {
       const id = Number(req.params?.id);
       const postProcessing: PostProcessing = req.body;
 
-      await postProcessingService.create(id, postProcessing);
-
       if (
         (await postProcessingService.get(id)).length ===
         (await qualityCheckService.get(id)).length
       ) {
-        await qualityCheckService.create(id, postProcessing);
+        await postProcessingService.create(id, postProcessing);
 
         return res.status(201).send();
+      } else {
+        return res.status(500).json({
+          message:
+            'You have to add a quality check to previous post process before adding more',
+        });
       }
-      return res.status(500).json({
-        message: 'Each quality check should be associated with a post process',
-      });
     },
   };
 
