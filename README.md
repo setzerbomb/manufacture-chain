@@ -21,7 +21,7 @@ yarn && yarn dev
 The project can be tested with
 
 ```shell
-npx hardhat test
+yarn hardhat test
 ```
 
 To test the API, you can use insomnia to import the provided collection: insomnia-supplychain-api.json
