@@ -1,13 +1,25 @@
-# Sample Hardhat Project
+# Supply Chain Hardhat Project
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This project was a learning experience to understand more about blockchains and smart contracts.
 
 Try running some of the following tasks:
 
+# Project Setup
+
+After cloning the project, create a .env file fallowing the described example at .env.example.
+
+Add the information of the test network that you are using, we recommend ganache for quick setup.
+
+Then run:
+
 ```shell
-npx hardhat help
+yarn && yarn dev
+```
+
+# Testing
+
+The project can be tested with
+
+```shell
 npx hardhat test
-GAS_REPORT=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
 ```
